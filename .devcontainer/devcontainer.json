@@ -19,5 +19,9 @@
                "codespace.md"
            ]
        }
-   }
+},
+"features": {
+    "ghcr.io/devcontainers/features/azure-cli:1": {},
+    "ghcr.io/devcontainers-extra/features/terraform-asdf:2": {}
+}
   }
