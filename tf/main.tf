@@ -4,6 +4,7 @@ resource "azurerm_resource_group" "aks-rg" {
   name     = var.resource_group_name
   location = var.location
 }
+/*
  #Azure Role Assignment
 resource "azurerm_role_assignment" "role_acrpull" {
   scope                            = azurerm_container_registry.acr.id
@@ -44,3 +45,4 @@ resource "azurerm_kubernetes_cluster" "aks" {
     network_plugin    = "kubenet" 
   }
 }
+*/
