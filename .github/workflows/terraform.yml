@@ -107,28 +107,5 @@ jobs:
       # On push to "main", build or change infrastructure according to Terraform configuration files
       # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
     - name: Terraform Apply
-      if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
+      if: github.ref == 'refs/heads/"tf-setup"' && github.event_name == 'push'
       run: terraform apply -auto-approve -input=false
-
-
-    - name: Azure Login
-      uses: Azure/login@v2.2.0
-      with:
-        # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
-        creds: # optional
-        # ClientId of the Azure Service principal created.
-        client-id: # optional
-        # TenantId of the Azure Service principal created.
-        tenant-id: # optional
-        # Azure subscriptionId
-        subscription-id: # optional
-        # Set this value to true to enable Azure PowerShell Login in addition to Azure CLI login
-        enable-AzPSSession: # optional
-        # Name of the environment. Supported values are azurecloud, azurestack, azureusgovernment, azurechinacloud, azuregermancloud. Default being azurecloud
-        environment: # optional, default is azurecloud
-        # Set this value to true to enable support for accessing tenants without subscriptions
-        allow-no-subscriptions: # optional
-        # Provide audience field for access-token. Default value is api://AzureADTokenExchange
-        audience: # optional, default is api://AzureADTokenExchange
-        # The type of authentication. Supported values are SERVICE_PRINCIPAL, IDENTITY. Default value is SERVICE_PRINCIPAL
-        auth-type: # optional, default is SERVICE_PRINCIPAL
