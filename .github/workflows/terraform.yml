@@ -62,7 +62,7 @@ jobs:
     defaults:
       run:
         shell: bash
-
+        working-directory: ./tf
     steps:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
@@ -80,8 +80,13 @@ jobs:
         azcliversion: latest
         inlineScript: |
           az account show
+    
+   # - name: Deploy Azure Resource Manager (ARM) Template
+   #   uses: Azure/arm-deploy@v2
+   #    with:
           
-    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+          
+  #  Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
       with:
@@ -106,24 +111,24 @@ jobs:
       run: terraform apply -auto-approve -input=false
 
 
-    # - name: Azure Login
-    #   uses: Azure/login@v2.2.0
-    #   with:
-    #     # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
-    #     creds: # optional
-    #     # ClientId of the Azure Service principal created.
-    #     client-id: # optional
-    #     # TenantId of the Azure Service principal created.
-    #     tenant-id: # optional
-    #     # Azure subscriptionId
-    #     subscription-id: # optional
-    #     # Set this value to true to enable Azure PowerShell Login in addition to Azure CLI login
-    #     enable-AzPSSession: # optional
-    #     # Name of the environment. Supported values are azurecloud, azurestack, azureusgovernment, azurechinacloud, azuregermancloud. Default being azurecloud
-    #     environment: # optional, default is azurecloud
-    #     # Set this value to true to enable support for accessing tenants without subscriptions
-    #     allow-no-subscriptions: # optional
-    #     # Provide audience field for access-token. Default value is api://AzureADTokenExchange
-    #     audience: # optional, default is api://AzureADTokenExchange
-    #     # The type of authentication. Supported values are SERVICE_PRINCIPAL, IDENTITY. Default value is SERVICE_PRINCIPAL
-    #     auth-type: # optional, default is SERVICE_PRINCIPAL
+    - name: Azure Login
+      uses: Azure/login@v2.2.0
+      with:
+        # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
+        creds: # optional
+        # ClientId of the Azure Service principal created.
+        client-id: # optional
+        # TenantId of the Azure Service principal created.
+        tenant-id: # optional
+        # Azure subscriptionId
+        subscription-id: # optional
+        # Set this value to true to enable Azure PowerShell Login in addition to Azure CLI login
+        enable-AzPSSession: # optional
+        # Name of the environment. Supported values are azurecloud, azurestack, azureusgovernment, azurechinacloud, azuregermancloud. Default being azurecloud
+        environment: # optional, default is azurecloud
+        # Set this value to true to enable support for accessing tenants without subscriptions
+        allow-no-subscriptions: # optional
+        # Provide audience field for access-token. Default value is api://AzureADTokenExchange
+        audience: # optional, default is api://AzureADTokenExchange
+        # The type of authentication. Supported values are SERVICE_PRINCIPAL, IDENTITY. Default value is SERVICE_PRINCIPAL
+        auth-type: # optional, default is SERVICE_PRINCIPAL
