@@ -1,9 +1,19 @@
 
+terraform {
+  backend "azurerm" {
+    resource_group_name   = "storage-rg"
+    storage_account_name  = "tfbackend23"
+    container_name        = "default"
+    key                   = "terraform.tfstate"
+  }
+}
 #Azure Resource Group
 resource "azurerm_resource_group" "aks-rg" {
   name     = var.resource_group_name
   location = var.location
 }
+
+
 /*
  #Azure Role Assignment
 resource "azurerm_role_assignment" "role_acrpull" {
