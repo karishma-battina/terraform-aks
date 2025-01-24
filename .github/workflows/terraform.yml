@@ -109,3 +109,24 @@ jobs:
     - name: Terraform Apply
       if: github.ref == 'refs/heads/tf-setup' && github.event_name == 'push'
       run: terraform apply -auto-approve -input=false
+
+      # - name: Terraform init azurerm backend
+      # # You may pin to the exact commit or the version.
+      # # uses: ahmedig/terraform-azurerm-backend@65ed9d7f67790281b78670b7811d63d96f5e22ec
+      # uses: ahmedig/terraform-azurerm-backend@v4
+      # with:
+      #   # Azure Credentials in JSON format
+      #   azure_credentials: 
+      #   # State file location - resource group name
+      #   resource_group_name: 
+      #   # State file location - container name
+      #   container_name: 
+      #   # State file location - storage account name
+      #   storage_account_name: 
+      #   # State file location - file name
+      #   file_name: # optional, default is terraform.tfstate
+      #   # Subscription Id of the resource group
+      #   subscription_id: # optional, default is empty
+      #   # Terraform working directory
+      #   tf_working_directory: # optional, default is .
+              
