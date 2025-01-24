@@ -32,8 +32,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
     vm_size    = "Standard_DS2_v2"
 
     type = "VirtualMachineScaleSets"
-
-    zones = ["1", "2", "3"]
   }
   identity {
     type = "SystemAssigned"
