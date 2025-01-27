@@ -8,4 +8,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Example Step
-        run: echo "This workflow was triggered manually!"
+        run: echo "This workflow was triggered manually"
