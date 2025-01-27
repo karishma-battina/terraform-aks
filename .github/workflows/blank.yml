@@ -1,48 +1,25 @@
-# This is a basic workflow to help you get started with Actions
-
-name: CI
-
-# Controls when the workflow will run
+name: Auto + Manual Jobs
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
+  # Auto-trigger on push to main
   push:
-    branches: [ "main", "karishma-battina-patch-1" ]
-  pull_request:
-    branches: [ "main", "karishma-battina-patch-1" ]
-  # Allows you to run this workflow manually from the Actions tab
+    branches: [ "karishma-battina-patch-1" ]
+  # Allow manual triggering of the entire workflow
   workflow_dispatch:
-    inputs:
-                environment:
-                    description: 'Environment to deploy to'
-                    required: true
-                    default: 'production'
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  auto_job:
+    name: Auto-Triggered Job
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - run: echo "This job runs automatically on push!"
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
-
-  manual_deployment: # This is the manually triggered job
-    needs: build       # Depends on the test job completing
+  manual_job:
+    name: Manual Approval Job
     runs-on: ubuntu-latest
-    environment: production
-    #if: github.event_name == 'workflow_dispatch'
+    # Ensure this job runs only after manual approval
+    needs: [auto_job]
+    environment: 
+      name: production
+      url: https://example.com
     steps:
-      - name: Deploy to production (Manual)
-        run: |
-          echo "This deployment is triggered manually."
-          echo "You can add more specific deployment steps here."
+      - run: echo "This job requires manual approval!"
