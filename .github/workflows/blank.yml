@@ -15,7 +15,7 @@ on:
       run-specific-step:
         description: 'Trigger a specific step manually'
         required: true
-        default: 'false'
+        default: 'true'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -38,7 +38,10 @@ jobs:
         run: |
           echo Add other actions to build,
           echo test, and deploy your project.
-          
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
       - name: Conditionally Run Step
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.run-specific-step == 'true' }}
         run: echo "This step runs only if manually triggered with input 'run-specific-step=true'."
