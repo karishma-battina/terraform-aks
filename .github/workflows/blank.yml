@@ -12,10 +12,10 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
-      run-specific-step:
-        description: 'Trigger a specific step manually'
-        required: true
-        default: 'true'
+                environment:
+                    description: 'Environment to deploy to'
+                    required: true
+                    default: 'production'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -39,9 +39,13 @@ jobs:
           echo Add other actions to build,
           echo test, and deploy your project.
 
-  deploy:
+  manual_deployment: # This is the manually triggered job
+    needs: build       # Depends on the test job completing
     runs-on: ubuntu-latest
+    environment: production
+    if: github.event_name == 'workflow_dispatch'
     steps:
-      - name: Conditionally Run Step
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.run-specific-step == 'true' }}
-        run: echo "This step runs only if manually triggered with input 'run-specific-step=true'."
+      - name: Deploy to production (Manual)
+        run: |
+          echo "This deployment is triggered manually."
+          echo "You can add more specific deployment steps here."
