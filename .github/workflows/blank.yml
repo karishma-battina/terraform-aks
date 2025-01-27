@@ -1,25 +1,12 @@
-name: Auto + Manual Jobs
+# .github/workflows/manual-job.yml
+name: Manual Job Example
+
 on:
-  # Auto-trigger on push to main
-  push:
-    branches: [ "karishma-battina-patch-1" ]
-  # Allow manual triggering of the entire workflow
-  workflow_dispatch:
+  workflow_dispatch:  # Allows manual triggering via GitHub UI/API
 
 jobs:
-  auto_job:
-    name: Auto-Triggered Job
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "This job runs automatically on push!"
-
   manual_job:
-    name: Manual Approval Job
     runs-on: ubuntu-latest
-    # Ensure this job runs only after manual approval
-    needs: [auto_job]
-    environment: 
-      name: production
-      url: https://example.com
     steps:
-      - run: echo "This job requires manual approval!"
+      - name: Print a message
+        run: echo "This job runs manually! 🚀"
