@@ -40,7 +40,7 @@ jobs:
     needs: build       # Depends on the test job completing
     runs-on: ubuntu-latest
     environment: production
-    if: github.event_name == 'workflow_dispatch'
+    #if: github.event_name == 'workflow_dispatch'
     steps:
       - name: Deploy to production (Manual)
         run: |
