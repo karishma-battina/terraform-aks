@@ -1,36 +1,34 @@
 ---
-# website::tag::1:: Deploy the training/webapp Docker Container: https://hub.docker.com/r/training/webapp/
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hello-world-deployment
+  name: nginx-deployment
 spec:
   selector:
     matchLabels:
-      app: hello-world
+      app: nginx
   replicas: 1
   template:
     metadata:
       labels:
-        app: hello-world
+        app: nginx
     spec:
       containers:
-        # website::tag::2:: The container runs a Python webapp on port 5000 that responds with "Hello, World!"
-        - name: hello-world
-          image: mcr.microsoft.com/mcr/hello-world:latest
+        - name: nginx
+          image: mcr.microsoft.com/azurelinux/base/nginx:1.25
           ports:
-            - containerPort: 5000
+            - containerPort: 80
 ---
 # website::tag::3:: Expose the Python webapp on port 5000 via a Kubernetes LoadBalancer.
 kind: Service
 apiVersion: v1
 metadata:
-  name: hello-world-service
+  name: nginx-service
 spec:
   selector:
-    app: hello-world
+    app: nginx
   ports:
     - protocol: TCP
-      targetPort: 5000
-      port: 5000
+      targetPort: 80
+      port: 80
   type: LoadBalancer
