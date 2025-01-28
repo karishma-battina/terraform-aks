@@ -103,7 +103,7 @@ jobs:
 
       - name: Set AKS context
         id: set-context
-        uses: azure/aks-set-contextv3.0
+        uses: azure/aks-set-context@v3.0
         with:
           resource-group: '${{ secrets.resource_group }}' 
           cluster-name: '${{ secrets.cluster_name }}'
