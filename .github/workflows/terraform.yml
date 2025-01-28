@@ -95,9 +95,8 @@ jobs:
     #      branch: master
     #      tag: ${{ github.sha }}
 
-      - name: Azure login
-        id: login
-        uses: azure/login@v2.2.0
+      - name: Azure Login
+        uses: Azure/login@v2.2.0
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
