@@ -83,10 +83,15 @@ jobs:
       ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      
+
     steps:
-      - name: Checkout source code 
-        uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: Azure/login@v2.2.0
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     #  - name: ACR build
     #    id: build-push-acr
@@ -102,28 +107,23 @@ jobs:
     #      branch: master
     #      tag: ${{ github.sha }}
 
-      - name: Azure Login
-        uses: Azure/login@v2.2.0
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Set AKS context
+      id: set-context
+      uses: azure/aks-set-context@v3.0
+      with:
+        resource-group: '${{ secrets.resource_group }}' 
+        cluster-name: '${{ secrets.cluster_name }}'
 
-      - name: Set AKS context
-        id: set-context
-        uses: azure/aks-set-context@v3.0
-        with:
-          resource-group: '${{ secrets.resource_group }}' 
-          cluster-name: '${{ secrets.cluster_name }}'
+    - name: Setup kubectl
+      id: install-kubectl
+      uses: azure/setup-kubectl@v4.0.0
 
-      - name: Setup kubectl
-        id: install-kubectl
-        uses: azure/setup-kubectl@v4.0.0
-
-      - name: Deploy to AKS
-        id: deploy-aks
-        uses: Azure/k8s-deploy@v5
-        with:
-          namespace: 'default'
-          manifests: |
-             manifests/hello-world.yml
+    - name: Deploy to AKS
+      id: deploy-aks
+      uses: Azure/k8s-deploy@v5
+      with:
+        namespace: 'default'
+        manifests: |
+           manifests/hello-world.yml
         #  images: '${{ secrets.registry }}.azurecr.io/${{ secrets.repository }}/azure-vote-front:${{ github.sha }}'
-          pull-images: false 
+        pull-images: false 
