@@ -17,7 +17,7 @@ spec:
       containers:
         # website::tag::2:: The container runs a Python webapp on port 5000 that responds with "Hello, World!"
         - name: hello-world
-          image: mcr.microsoft.com/mcr/hello-world:v1.0
+          image: mcr.microsoft.com/mcr/hello-world:latest
           ports:
             - containerPort: 5000
 ---
