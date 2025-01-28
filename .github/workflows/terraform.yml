@@ -114,7 +114,7 @@ jobs:
 
       - name: Deploy to AKS
         id: deploy-aks
-        uses: Azure/k8s-deploy@4.9
+        uses: azure/k8s-deploy@4.9
         with:
           namespace: 'default'
           manifests: |
