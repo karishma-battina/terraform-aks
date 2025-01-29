@@ -25,7 +25,7 @@ output "acr_login_server" {
 # }
 
 output "argocd_server_url" {
-  value = "http://${kubernetes_service.argocd_server.status.0.load_balancer.0.ingress.0.ip}:80"
+  value = "http://${data.kubernetes_service.argocd_server.status[0].load_balancer[0].ingress[0].ip}:80"
 }
 
 output "argocd_admin_password" {
