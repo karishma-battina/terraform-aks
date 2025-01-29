@@ -20,7 +20,7 @@ resource "azurerm_container_registry" "acr" {
   admin_enabled       = false
 }
 
-resource "azurerm_kubernetes_cluster" "aks" {
+resource "azurerm_kubernetes_cluster" "argocd" {
   name                = var.cluster_name
   kubernetes_version  = var.kubernetes_version
   location            = var.location
@@ -47,5 +47,37 @@ terraform {
     storage_account_name = "tfbackend23"
     container_name       = "default"
     key                  = "terraform.tfstate"
+  }
+}
+
+provider "kubernetes" {
+  host                   = azurerm_kubernetes_cluster.argocd.kube_config.0.host
+  client_certificate     = base64decode(azurerm_kubernetes_cluster.argocd.kube_config.0.client_certificate)
+  client_key             = base64decode(azurerm_kubernetes_cluster.argocd.kube_config.0.client_key)
+  cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.argocd.kube_config.0.cluster_ca_certificate)
+}
+
+# Configure Helm Provider
+provider "helm" {
+  kubernetes {
+    host                   = azurerm_kubernetes_cluster.argocd.kube_config.0.host
+    client_certificate     = base64decode(azurerm_kubernetes_cluster.argocd.kube_config.0.client_certificate)
+    client_key             = base64decode(azurerm_kubernetes_cluster.argocd.kube_config.0.client_key)
+    cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.argocd.kube_config.0.cluster_ca_certificate)
+  }
+}
+
+# Install Argo CD using Helm
+resource "helm_release" "argocd" {
+  name             = "argocd"
+  repository       = "https://argoproj.github.io/argo-helm"
+  chart            = "argo-cd"
+  version          = "5.46.8" # Check for the latest version
+  namespace        = "argocd"
+  create_namespace = true
+
+  set {
+    name  = "server.service.type"
+    value = "LoadBalancer"
   }
 }
