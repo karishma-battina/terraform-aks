@@ -92,7 +92,7 @@ data "kubernetes_secret" "argocd_admin" {
 
 data "kubernetes_service" "argocd_server" {
   metadata {
-    name      = "argocd-server"  # Name of the service created by the Helm chart
+    name      = "argocd-server" # Name of the service created by the Helm chart
     namespace = "argocd"
   }
   depends_on = [helm_release.argocd]
