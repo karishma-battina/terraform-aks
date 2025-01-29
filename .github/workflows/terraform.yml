@@ -1,0 +1,130 @@
+# This workflow installs the latest version of Terraform CLI and configures the Terraform CLI configuration file
+# with an API token for Terraform Cloud (app.terraform.io). On pull request events, this workflow will run
+# `terraform init`, `terraform fmt`, and `terraform plan` (speculative plan via Terraform Cloud). On push events
+# to the "main" branch, `terraform apply` will be executed.
+
+name: 'Terraform'
+
+on:
+  push:
+    branches: [ "tf-setup" ]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    environment: production
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./tf
+
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: Azure/login@v2.2.0
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Azure CLI script
+      uses: azure/cli@v2
+      with:
+        azcliversion: latest
+        inlineScript: |
+          az account show
+          
+  #  Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_wrapper: false
+  
+    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+    - name: Terraform Init
+      run: terraform init
+
+    # Checks that all Terraform configuration files adhere to a canonical format
+    - name: Terraform Format
+      run: terraform fmt -check
+
+    # Generates an execution plan for Terraform
+    - name: Terraform Plan
+      run: terraform plan -input=false
+
+      # On push to "main", build or change infrastructure according to Terraform configuration files
+      # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
+    - name: Terraform Apply
+      if: github.ref == 'refs/heads/tf-setup' && github.event_name == 'push'
+      run: terraform apply -auto-approve -input=false
+
+
+  #build:
+  #  name: 'Build'
+  #  needs: terraform
+  #  runs-on: ubuntu-latest
+  #  environment: production
+
+  #  env:
+  #    ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+  #    ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+  #    ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  #    ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+  #  steps:
+  #  - name: Checkout
+  #    uses: actions/checkout@v4
+
+  #  - name: Azure Login
+  #    uses: Azure/login@v2.2.0
+  #    with:
+  #      creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    #  - name: ACR build
+    #    id: build-push-acr
+    #    uses: azure/acr-build@v1
+    #    with:
+    #      service_principal: ${{ secrets.service_principal }}
+    #      service_principal_password: ${{ secrets.service_principal_password }}
+    #      tenant: ${{ secrets.tenant }}
+    #      registry: ${{ secrets.registry }}
+    #      repository: ${{ secrets.repository }}
+    #      image:  azure-vote-front
+    #      folder: azure-vote
+    #      branch: master
+    #      tag: ${{ github.sha }}
+
+  #  - name: Set AKS context
+  #    id: set-context
+  #    uses: azure/aks-set-context@v3.0
+  #    with:
+  #      resource-group: '${{ secrets.resource_group }}' 
+  #      cluster-name: '${{ secrets.cluster_name }}'
+
+  #  - name: Setup kubectl
+  #    id: install-kubectl
+  #    uses: azure/setup-kubectl@v4.0.0
+
+  #  - name: Deploy to AKS
+  #    id: deploy-aks
+  #    uses: Azure/k8s-deploy@v5
+  #    with:
+  #      namespace: 'default'
+  #      manifests: |
+  #         manifests/hello-world.yml
+  #      #  images: '${{ secrets.registry }}.azurecr.io/${{ secrets.repository }}/azure-vote-front:${{ github.sha }}'
+  #      pull-images: false 

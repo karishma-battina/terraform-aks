@@ -1,0 +1,28 @@
+{
+    // Name this configuration
+    "name": "Codespace for Skills!",
+    // Use the base codespace image
+    "image": "mcr.microsoft.com/vscode/devcontainers/universal:latest",
+  
+    "remoteUser": "codespace",
+    "overrideCommand": false
+     ,
+   // Add the IDs of extensions you want installed when the container is created.
+   "customizations": {
+       "vscode": {
+           "extensions": [
+               "GitHub.copilot"
+           ]
+       },
+       "codespaces": {
+           "openFiles": [
+               "codespace.md"
+           ]
+       }
+},
+"features": {
+    "ghcr.io/devcontainers/features/azure-cli:1": {},
+    "ghcr.io/devcontainers-extra/features/terraform-asdf:2": {},
+    "ghcr.io/devcontainers-community/npm-features/prettier:1": {}
+}
+  }
