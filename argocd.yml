@@ -6,7 +6,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/karishma-battina/terraform-aks
-    targetRevision: tf-setup
+    targetRevision: main
     path: manifests
   destination:
     server: https://kubernetes.default.svc

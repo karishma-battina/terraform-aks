@@ -1,6 +1,6 @@
 {
     // Name this configuration
-    "name": "Codespace for Skills!",
+    "name": "Codespace for Azure-terraform-gitops project",
     // Use the base codespace image
     "image": "mcr.microsoft.com/vscode/devcontainers/universal:latest",
   
