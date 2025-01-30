@@ -100,12 +100,17 @@ terraform {
 
 # main.tf
 
+data "azurerm_kubernetes_cluster" "aks" {
+  name                = "gitops-aks"
+  resource_group_name = "stu-rg1"
+}
 
 provider "kubernetes" {
   host                   = azurerm_kubernetes_cluster.aks.kube_config.0.host
   client_certificate     = base64decode(azurerm_kubernetes_cluster.aks.kube_config.0.client_certificate)
   client_key             = base64decode(azurerm_kubernetes_cluster.aks.kube_config.0.client_key)
   cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.aks.kube_config.0.cluster_ca_certificate)
+  
 }
 
 provider "helm" {
