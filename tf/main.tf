@@ -5,12 +5,12 @@ resource "azurerm_resource_group" "aks-rg" {
 }
 
 #Azure Role Assignment
-resource "azurerm_role_assignment" "role_acrpull" {
-  scope                            = azurerm_container_registry.acr.id
-  role_definition_name             = "AcrPull"
-  principal_id                     = azurerm_kubernetes_cluster.argocd.kubelet_identity.0.object_id
-  skip_service_principal_aad_check = true
-}
+#resource "azurerm_role_assignment" "role_acrpull" {
+#  scope                            = azurerm_container_registry.acr.id
+#  role_definition_name             = "AcrPull"
+#  principal_id                     = azurerm_kubernetes_cluster.aks.kubelet_identity.0.object_id
+#  skip_service_principal_aad_check = true
+#}
 
 resource "azurerm_container_registry" "acr" {
   name                = var.acr_name
@@ -20,7 +20,7 @@ resource "azurerm_container_registry" "acr" {
   admin_enabled       = false
 }
 
-resource "azurerm_kubernetes_cluster" "argocd" {
+resource "azurerm_kubernetes_cluster" "aks" {
   name                = var.cluster_name
   kubernetes_version  = var.kubernetes_version
   location            = var.location
@@ -50,37 +50,37 @@ terraform {
   }
 }
 
-provider "kubernetes" {
-  host                   = azurerm_kubernetes_cluster.argocd.kube_config.0.host
-  client_certificate     = base64decode(azurerm_kubernetes_cluster.argocd.kube_config.0.client_certificate)
-  client_key             = base64decode(azurerm_kubernetes_cluster.argocd.kube_config.0.client_key)
-  cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.argocd.kube_config.0.cluster_ca_certificate)
-}
+#provider "kubernetes" {
+#  host                   = azurerm_kubernetes_cluster.argocd.kube_config.0.host
+#  client_certificate     = base64decode(azurerm_kubernetes_cluster.argocd.kube_config.0.client_certificate)
+#  client_key             = base64decode(azurerm_kubernetes_cluster.argocd.kube_config.0.client_key)
+#  cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.argocd.kube_config.0.cluster_ca_certificate)
+#}
 
 # Configure Helm Provider
-provider "helm" {
-  kubernetes {
-    host                   = azurerm_kubernetes_cluster.argocd.kube_config.0.host
-    client_certificate     = base64decode(azurerm_kubernetes_cluster.argocd.kube_config.0.client_certificate)
-    client_key             = base64decode(azurerm_kubernetes_cluster.argocd.kube_config.0.client_key)
-    cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.argocd.kube_config.0.cluster_ca_certificate)
-  }
-}
+#provider "helm" {
+#  kubernetes {
+#    host                   = azurerm_kubernetes_cluster.argocd.kube_config.0.host
+#    client_certificate     = base64decode(azurerm_kubernetes_cluster.argocd.kube_config.0.client_certificate)
+#    client_key             = base64decode(azurerm_kubernetes_cluster.argocd.kube_config.0.client_key)
+#    cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.argocd.kube_config.0.cluster_ca_certificate)
+#  }
+#}
 
 # Install Argo CD using Helm
-resource "helm_release" "argocd" {
-  name             = "argocd"
-  repository       = "https://argoproj.github.io/argo-helm"
-  chart            = "argo-cd"
-  version          = "5.46.8" # Check for the latest version
-  namespace        = "argocd"
-  create_namespace = true
+#resource "helm_release" "argocd" {
+#  name             = "argocd"
+#  repository       = "https://argoproj.github.io/argo-helm"
+#  chart            = "argo-cd"
+#  version          = "5.46.8" # Check for the latest version
+#  namespace        = "argocd"
+#  create_namespace = true
 
-  set {
-    name  = "server.service.type"
-    value = "LoadBalancer"
-  }
-}
+#  set {
+#    name  = "server.service.type"
+#    value = "LoadBalancer"
+#  }
+#}
 
 #data "kubernetes_secret" "argocd_admin" {
 #  metadata {
@@ -97,3 +97,68 @@ resource "helm_release" "argocd" {
 #  }
 #  depends_on = [helm_release.argocd]
 #}
+
+# main.tf
+
+
+provider "kubernetes" {
+  host                   = azurerm_kubernetes_cluster.aks.kube_config.0.host
+  client_certificate     = base64decode(azurerm_kubernetes_cluster.aks.kube_config.0.client_certificate)
+  client_key             = base64decode(azurerm_kubernetes_cluster.aks.kube_config.0.client_key)
+  cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.aks.kube_config.0.cluster_ca_certificate)
+}
+
+provider "helm" {
+  kubernetes {
+    host                   = azurerm_kubernetes_cluster.aks.kube_config.0.host
+    client_certificate     = base64decode(azurerm_kubernetes_cluster.aks.kube_config.0.client_certificate)
+    client_key             = base64decode(azurerm_kubernetes_cluster.aks.kube_config.0.client_key)
+    cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.aks.kube_config.0.cluster_ca_certificate)
+  }
+}
+
+# Create a namespace for ArgoCD
+resource "kubernetes_namespace" "argocd" {
+  metadata {
+    name = "argocd"
+  }
+}
+
+# Install ArgoCD using Helm
+resource "helm_release" "argocd" {
+  name       = "argocd"
+  repository = "https://argoproj.github.io/argo-helm"
+  chart      = "argo-cd"
+  namespace  = kubernetes_namespace.argocd.metadata[0].name
+  version    = "5.46.8"  # Replace with the desired ArgoCD version
+
+  set {
+    name  = "server.service.type"
+    value = "LoadBalancer"  # Expose ArgoCD server via a LoadBalancer
+  }
+
+  #set {
+  #  name  = "server.ingress.enabled"
+  #  value = "true"  # Enable ingress if needed
+  #}
+
+  #set {
+  #  name  = "server.ingress.hosts[0]"
+  #  value = "argocd.example.com"  # Replace with your domain
+  #}
+
+  #set {
+  #  name  = "server.ingress.tls[0].hosts[0]"
+  #  value = "argocd.example.com"  # Replace with your domain
+  #}
+
+  #set {
+  #  name  = "server.ingress.tls[0].secretName"
+  #  value = "argocd-tls"  # Name of the TLS secret
+  #}
+}
+
+# Output the ArgoCD server URL
+output "argocd_server_url" {
+  value = "http://${helm_release.argocd.name}.${helm_release.argocd.namespace}.svc.cluster.local"
+}
