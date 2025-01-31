@@ -32,3 +32,12 @@ output "acr_login_server" {
 #  value     = data.kubernetes_secret.argocd_admin.data["password"]
 #  sensitive = true
 #}
+
+# Output the LoadBalancer IP
+output "argocd_loadbalancer_ip" {
+  value = kubernetes_service.argocd_server.status[0].load_balancer[0].ingress[0].ip
+}
+
+output "argocd_admin_password" {
+  value = kubernetes_secret.argocd_initial_admin_secret.data.password
+}
