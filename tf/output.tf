@@ -41,4 +41,5 @@ output "argocd_loadbalancer_ip" {
 # Output the ArgoCD admin password
 output "argocd_admin_password" {
   value = kubernetes_secret.argocd_initial_admin_secret.data.password
+  sensitive = true
 }
