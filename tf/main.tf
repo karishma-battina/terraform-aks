@@ -142,37 +142,44 @@ resource "helm_release" "argocd" {
   }
 }
 
-# Explicitly define the ArgoCD server service
-resource "kubernetes_service" "argocd_server" {
-  metadata {
-    name      = "argocd-server"
-    namespace = kubernetes_namespace.argocd.metadata[0].name
+# Fetch LoadBalancer IP and admin password using kubectl
+resource "null_resource" "argocd_outputs" {
+  depends_on = [helm_release.argocd]
+
+  # Fetch LoadBalancer IP and save to a file
+  provisioner "local-exec" {
+    command = <<-EOT
+      kubectl -n argocd get svc argocd-server -o jsonpath='{.status.loadBalancer.ingress[0].ip}' > argocd_lb_ip.txt
+    EOT
   }
 
-  spec {
-    selector = {
-      app = "argocd-server"
-    }
-
-    port {
-      port        = 80
-      target_port = 8080
-    }
-
-    type = "LoadBalancer"
+  # Fetch admin password and save to a file
+  provisioner "local-exec" {
+    command = <<-EOT
+      kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d > argocd_admin_password.txt
+    EOT
   }
 }
 
-# Explicitly define the ArgoCD admin secret
-resource "kubernetes_secret" "argocd_initial_admin_secret" {
-  metadata {
-    name      = "argocd-initial-admin-secret"
-    namespace = kubernetes_namespace.argocd.metadata[0].name
-  }
+# Read LoadBalancer IP from the file
+data "local_file" "argocd_lb_ip" {
+  filename   = "argocd_lb_ip.txt"
+  depends_on = [null_resource.argocd_outputs]
+}
 
-  data = {
-    password = "admin"  # Replace with a secure password or generate dynamically
-  }
+# Read admin password from the file
+data "local_file" "argocd_admin_password" {
+  filename   = "argocd_admin_password.txt"
+  depends_on = [null_resource.argocd_outputs]
+}
 
-  type = "Opaque"
+# Output the LoadBalancer IP
+output "argocd_loadbalancer_ip" {
+  value = data.local_file.argocd_lb_ip.content
+}
+
+# Output the admin password
+output "argocd_admin_password" {
+  value     = data.local_file.argocd_admin_password.content
+  sensitive = true  # Mark as sensitive to hide in logs
 }
