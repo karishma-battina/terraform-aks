@@ -35,10 +35,10 @@ output "acr_login_server" {
 
 # Output the LoadBalancer IP
 output "argocd_loadbalancer_ip" {
-  value = "Run 'kubectl -n argocd get svc argocd-server -o jsonpath='{.status.loadBalancer.ingress[0].ip}' to fetch the LoadBalancer IP"
+  value = kubernetes_service.argocd_server.status[0].load_balancer[0].ingress[0].ip
 }
 
-# Output the ArgoCD admin password (fetched using kubectl after deployment)
+# Output the ArgoCD admin password
 output "argocd_admin_password" {
-  value = "Run 'kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d' to fetch the admin password"
+  value = kubernetes_secret.argocd_initial_admin_secret.data.password
 }

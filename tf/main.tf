@@ -142,7 +142,37 @@ resource "helm_release" "argocd" {
   }
 }
 
-# Output the ArgoCD server URL
-output "argocd_server_url" {
-  value = "http://${helm_release.argocd.name}.${helm_release.argocd.namespace}.svc.cluster.local"
+# Explicitly define the ArgoCD server service
+resource "kubernetes_service" "argocd_server" {
+  metadata {
+    name      = "argocd-server"
+    namespace = kubernetes_namespace.argocd.metadata[0].name
+  }
+
+  spec {
+    selector = {
+      app = "argocd-server"
+    }
+
+    port {
+      port        = 80
+      target_port = 8080
+    }
+
+    type = "LoadBalancer"
+  }
+}
+
+# Explicitly define the ArgoCD admin secret
+resource "kubernetes_secret" "argocd_initial_admin_secret" {
+  metadata {
+    name      = "argocd-initial-admin-secret"
+    namespace = kubernetes_namespace.argocd.metadata[0].name
+  }
+
+  data = {
+    password = "admin"  # Replace with a secure password or generate dynamically
+  }
+
+  type = "Opaque"
 }
