@@ -1,7 +1,4 @@
-# This workflow installs the latest version of Terraform CLI and configures the Terraform CLI configuration file
-# with an API token for Terraform Cloud (app.terraform.io). On pull request events, this workflow will run
-# `terraform init`, `terraform fmt`, and `terraform plan` (speculative plan via Terraform Cloud). On push events
-# to the "main" branch, `terraform apply` will be executed.
+# This workflow installs the latest version of Terraform CLI and runs Terraform commands
 
 name: 'Terraform'
 
@@ -48,7 +45,7 @@ jobs:
         inlineScript: |
           az account show
           
-  #  Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+  #  Install the latest version of Terraform CLI
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
       with:
@@ -71,60 +68,3 @@ jobs:
     - name: Terraform Apply
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: terraform apply -auto-approve -input=false
-
-
-  #build:
-  #  name: 'Build'
-  #  needs: terraform
-  #  runs-on: ubuntu-latest
-  #  environment: production
-
-  #  env:
-  #    ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-  #    ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-  #    ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-  #    ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-  #  steps:
-  #  - name: Checkout
-  #    uses: actions/checkout@v4
-
-  #  - name: Azure Login
-  #    uses: Azure/login@v2.2.0
-  #    with:
-  #      creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-    #  - name: ACR build
-    #    id: build-push-acr
-    #    uses: azure/acr-build@v1
-    #    with:
-    #      service_principal: ${{ secrets.service_principal }}
-    #      service_principal_password: ${{ secrets.service_principal_password }}
-    #      tenant: ${{ secrets.tenant }}
-    #      registry: ${{ secrets.registry }}
-    #      repository: ${{ secrets.repository }}
-    #      image:  azure-vote-front
-    #      folder: azure-vote
-    #      branch: master
-    #      tag: ${{ github.sha }}
-
-  #  - name: Set AKS context
-  #    id: set-context
-  #    uses: azure/aks-set-context@v3.0
-  #    with:
-  #      resource-group: '${{ secrets.resource_group }}' 
-  #      cluster-name: '${{ secrets.cluster_name }}'
-
-  #  - name: Setup kubectl
-  #    id: install-kubectl
-  #    uses: azure/setup-kubectl@v4.0.0
-
-  #  - name: Deploy to AKS
-  #    id: deploy-aks
-  #    uses: Azure/k8s-deploy@v5
-  #    with:
-  #      namespace: 'default'
-  #      manifests: |
-  #         manifests/hello-world.yml
-  #      #  images: '${{ secrets.registry }}.azurecr.io/${{ secrets.repository }}/azure-vote-front:${{ github.sha }}'
-  #      pull-images: false 

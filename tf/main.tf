@@ -4,14 +4,6 @@ resource "azurerm_resource_group" "aks-rg" {
   location = var.location
 }
 
-#Azure Role Assignment
-#resource "azurerm_role_assignment" "role_acrpull" {
-#  scope                            = azurerm_container_registry.acr.id
-#  role_definition_name             = "AcrPull"
-#  principal_id                     = azurerm_kubernetes_cluster.aks.kubelet_identity.0.object_id
-#  skip_service_principal_aad_check = true
-#}
-
 resource "azurerm_container_registry" "acr" {
   name                = var.acr_name
   resource_group_name = azurerm_resource_group.aks-rg.name
@@ -50,59 +42,9 @@ terraform {
   }
 }
 
-#provider "kubernetes" {
-#  host                   = azurerm_kubernetes_cluster.argocd.kube_config.0.host
-#  client_certificate     = base64decode(azurerm_kubernetes_cluster.argocd.kube_config.0.client_certificate)
-#  client_key             = base64decode(azurerm_kubernetes_cluster.argocd.kube_config.0.client_key)
-#  cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.argocd.kube_config.0.cluster_ca_certificate)
-#}
-
-# Configure Helm Provider
-#provider "helm" {
-#  kubernetes {
-#    host                   = azurerm_kubernetes_cluster.argocd.kube_config.0.host
-#    client_certificate     = base64decode(azurerm_kubernetes_cluster.argocd.kube_config.0.client_certificate)
-#    client_key             = base64decode(azurerm_kubernetes_cluster.argocd.kube_config.0.client_key)
-#    cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.argocd.kube_config.0.cluster_ca_certificate)
-#  }
-#}
-
-# Install Argo CD using Helm
-#resource "helm_release" "argocd" {
-#  name             = "argocd"
-#  repository       = "https://argoproj.github.io/argo-helm"
-#  chart            = "argo-cd"
-#  version          = "5.46.8" # Check for the latest version
-#  namespace        = "argocd"
-#  create_namespace = true
-
-#  set {
-#    name  = "server.service.type"
-#    value = "LoadBalancer"
-#  }
-#}
-
-#data "kubernetes_secret" "argocd_admin" {
-#  metadata {
-#    name      = "argocd-initial-admin-secret"
-#    namespace = "argocd"
-#  }
-#  depends_on = [helm_release.argocd]
-#}
-
-#data "kubernetes_service" "argocd_server" {
-#  metadata {
-#    name      = "argocd-server" # Name of the service created by the Helm chart
-#    namespace = "argocd"
-#  }
-#  depends_on = [helm_release.argocd]
-#}
-
-# main.tf
-
 data "azurerm_kubernetes_cluster" "aks" {
-  name                = "gitops-aks"
-  resource_group_name = "stu-rg1"
+  name                = var.cluster_name
+  resource_group_name = var.resource_group_name
 }
 
 provider "kubernetes" {
@@ -144,3 +86,4 @@ resource "helm_release" "argocd" {
 
 
 #To do: Display argocd IP and creds in the output
+# update azurerm provider to latest version
