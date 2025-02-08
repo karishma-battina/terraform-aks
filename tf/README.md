@@ -14,3 +14,7 @@
   - create resource group
   - create AKS
   - Install ArgoCD using helm
+     
+# Improvements
+- Improve outputs to print loadbalancer IP and argocd creds?
+- Improve documentation
